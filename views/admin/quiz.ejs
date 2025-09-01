@@ -1,0 +1,137 @@
+<%-include("header.ejs")%>
+<div class="container-fluid p-5">
+    <div class="row justify-content-center align-item-center">
+       <div class="col-md-8 rounded shadow p-3">
+       <h4 class="mb-3">Quiz Details</h4>
+<div class="row">
+    <div class="col-md-4 mb-2">
+        <lable class="mb-3">Quiz Name :</lable>
+        <input type="text" class="form-control" id="quiz_name" required>
+    </div>
+    <div class="col-md-4 mb-2">
+        <lable class="mb-3">Quiz Time (in Hour):</lable>
+        <input type="number" class="form-control" id="quiz_time" placeholder="eg. 1" required>
+        
+    </div>
+     <div class="col-md-4 mb-2">
+        <lable class="mb-3">Mark per Question :</lable>
+        <input type="number" class="form-control" id="mark_per_que"  required>
+        
+    </div>
+     <div class="col-md-4 mb-2">
+        <lable class="mb-3">Totak Marks:</lable>
+        <input type="number" class="form-control" id="total_mark"  required>
+        
+    </div>
+</div>
+
+       
+
+       </div>
+       <div class="col-md-8 rounded shadow p-3 mt-5">
+        <h4>Quiz Questions</h4>
+<table class="table table-primary">
+            <tr>
+                <th>SrNo</th>
+                <th>Question</th>
+                <th>Option 1</th>
+                <th>Option 2</th>
+                <th>Option 3</th>
+                <th>Option 4</th>
+                <th>Correct Option</th>
+                <th></th>
+            
+            </tr>
+        
+<tbody id="tbody">
+
+
+
+</tbody>
+
+<tfoot>
+    <tr>
+        <th colspan="8" class="text-end">
+            <button class="btn btn-primary" onclick="addRow()">Que +</button>
+            <button class="btn btn-success" onclick="submit()">Submit</button>
+        </th>
+
+    </tr>
+</tfoot>
+
+
+        </table>
+       </div>
+        
+    </div>
+</div>
+<script>
+let row=1;
+function addRow(){
+
+$("#tbody").append(`
+           <tr>
+                <td>${row}</td>
+         <td><input class="form-control" name="que" id="que-${row}" type="text"></td>
+         <td><input class="form-control" name="opt-1" id="opt-${row}" type="text"></td>
+         <td><input class="form-control" name="opt-2" id="opt-2-${row}" type="text"></td>
+         <td><input class="form-control" name="opt-3" id="opt-3-${row}" type="text"></td>
+         <td><input class="form-control" name="opt-4" id="opt-4-${row}" type="text"></td>
+          <td><select name="corr_opt" id="c-opt-${row}"  class="form-control" >
+            <option value="" disabled selected>Select Correct Option</option>
+        <option >Option 1</option>
+        <option >Option 2</option>
+        <option >Option 3</option>
+        <option >Option 4</option> 
+        </select></td>
+        <td><button class="btn btn-danger" onclick="deleteRow(this)">-</button></td>
+
+            </tr>`)
+row++;
+   
+}
+function deleteRow(ele){
+    ele.closest("tr").remove()
+}
+function submit(){
+    let data={
+        "quiz_name":document.getElementById("quiz_name").value,
+        "quiz_time":document.getElementById("quiz_time").value,
+        "mark_per_que":document.getElementById("mark_per_que").value,
+        "total_mark":document.getElementById("total_mark").value,
+        "que":[],
+        "opt_1":[],
+        "opt_2":[],
+        "opt_3":[],
+        "opt_4":[],
+        "cor_opt":[]
+    }
+    for(let q of document.getElementsByName("que")){
+        data.que.push(q.value);
+    }
+    for(let op of document.getElementsByName("opt-1")){
+        data.opt_1.push(op.value);
+    }
+     for(let op of document.getElementsByName("opt-2")){
+        data.opt_2.push(op.value);
+    }
+     for(let op of document.getElementsByName("opt-3")){
+        data.opt_3.push(op.value);
+    }
+     for(let op of document.getElementsByName("opt-4")){
+        data.opt_4.push(op.value);
+    }
+     for(let op of document.getElementsByName("corr_opt")){
+        data.cor_opt.push(op.value);
+    }
+$.ajax({
+    "method":"post",
+    "data":data,
+    "url":"/admin/add-quiz"
+}).done((res)=>{
+    alert("Quiz is added")
+    location.reload();
+})
+}
+</script>
+<%-include("footer.ejs")%>

@@ -1,0 +1,246 @@
+<%-include('header.ejs')%>
+<style>
+    #modal-btn{
+display: none;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row p-5">
+<div class="col-md-9 border p-3">
+<h4><%-quiz.quiz_name%></h4>
+<strong>Total : <%-quiz.total_mark%> marks</strong>
+<strong class="float-end">Time <span id="clock">59:00</span></strong>
+<div class="row">
+<h5 id="dis_que" class="mt-5 mb-4">Question is here </h5>
+<div id="options">
+ 
+</div>
+<div class="save-button text-end">
+    <button class="btn btn-primary" id="save-btn" data-bs-qid="" data-bs-ch="" onclick="saveAnswer()">Save</button>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" id="modal-btn"  data-bs-target="#exampleModal">
+  Submit
+</button>
+
+<!-- Modal -->
+<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Student Details</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start">
+    <label class="mb-2">Your Name :</label>
+    <input type="text" id="stu_name" class="form-control mb-2">
+    <label class="mb-2">Your Email :</label>
+    <input type="email" id="stu_email"  class="form-control mb-2">
+      </div>
+      <div class="modal-footer">
+        
+        <button type="button" class="btn btn-primary" onclick="submit()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-md-3 border p-2">
+    Question<br>
+    <%for(let i=0;i<ques.length;i++){%>
+        
+    <button class="btn btn-success que-btns <%-(i==0)?'act':''%>" id="btn-<%-ques[i]._id%>" onclick="changeQue(this)"><%-i+1%></button>
+    
+
+    <%}%>
+</div>
+    </div>
+</div>
+<script>
+    let questions=<%-JSON.stringify(ques)%>
+    let userAns=[]
+    
+</script>
+<script>
+    let quizTime=<%-quiz.quiz_time%>
+quizTime*=60;
+let m=60;
+let s=0;
+let intr=setInterval(()=>{
+s--;
+
+
+
+if(s<0){
+s=59;
+m--;
+
+  
+if(m==0){
+    
+    s=0;
+
+    clearInterval(intr)
+    discardTest()
+  
+
+}
+if(m<5){
+    document.getElementById("clock").style.color="red";
+}
+
+}
+
+
+
+
+document.getElementById("clock").innerHTML=`${(m<10?"0"+m:m)} : ${s<10?"0"+s:s}`
+
+},1000)
+
+    </script>
+<script>
+function checkActiveQueBtns(){
+    let btns=document.getElementsByClassName("que-btns");
+for (let i of btns){
+    if(i.className.includes("act")){
+        i.classList.remove("btn-success");
+        i.classList.add("btn-primary")
+        let ind=0;
+      for(let q of questions){
+        ind++; 
+           
+        if(q._id==i.id.split("-")[1]){
+            if(ind==questions.length){
+            document.getElementById("modal-btn").style.display="inline-block";
+        }
+        else{
+            document.getElementById("modal-btn").style.display="none"
+        }
+            document.getElementById("save-btn").setAttribute("data-bs-qid",q._id)
+            document.getElementById("dis_que").innerText=ind+". "+q.que;
+            document.getElementById("options").innerHTML=`
+               <input type="radio" onchange="selectOpt(this)" class="mb-3" id="opt-1" value="option 1" ><label for="opt-1 " class="fw-bold ms-1">${q.opt_1}</label><br>
+                  <input type="radio" onchange="selectOpt(this)" class="mb-3" id="opt-2" value="option 2" ><label for="opt-2 " class="fw-bold ms-1">${q.opt_2}</label><br>
+                     <input type="radio" onchange="selectOpt(this)" class="mb-3" id="opt-3" value="option 3" ><label for="opt-3 " class="fw-bold ms-1">${q.opt_3}</label><br>
+                        <input type="radio" onchange="selectOpt(this)" class="mb-3" id="opt-4" value="option 4" ><label for="opt-4 " class="fw-bold ms-1">${q.opt_4}</label><br>
+            
+            
+            
+            
+                        `
+           for(let u of userAns){
+            if(u.qid==q._id){
+               if(u.option=="option 1"){
+                    document.getElementById("opt-1").checked=true
+                } 
+                else if(u.option=="option 2"){
+                    document.getElementById("opt-2").checked=true
+
+                }
+                   else if(u.option=="option 3"){
+                    document.getElementById("opt-3").checked=true
+
+                }
+                   else if(u.option=="option 4"){
+                    document.getElementById("opt-4").checked=true
+
+                }
+            }
+           }             
+        }
+      }
+
+    }
+    else{
+          i.classList.remove("btn-primary");
+        i.classList.add("btn-success") 
+    }
+}
+}
+checkActiveQueBtns()
+function changeQue(ele){
+    let btns=document.getElementsByClassName("que-btns");
+    for(let i of btns){
+        i.classList.remove("act");
+    }
+    ele.classList.add("act");
+    checkActiveQueBtns();     
+}
+
+function selectOpt(ele){
+    for(let i=1;i<=4;i++){
+        let d=document.getElementById("opt-"+i);
+      d.checked=false;
+        
+    }
+     document.getElementById(ele.id).checked=true;
+document.getElementById("save-btn").setAttribute("data-bs-ch", document.getElementById(ele.id).value)
+}
+
+function saveAnswer(){
+    if(document.getElementById("save-btn").getAttribute("data-bs-ch")!=""){
+    let qid=document.getElementById("save-btn").getAttribute("data-bs-qid");
+    let cor_opt=document.getElementById("save-btn").getAttribute("data-bs-ch");
+    let obj={
+        "qid":qid,
+        "option":cor_opt
+    }
+    if(userAns.length==0){
+userAns.push(obj);
+    }
+    else{
+    for(let u of userAns){
+       
+        if(u.qid==qid){
+         
+            userAns.splice(userAns.indexOf(u))
+            userAns.push(obj);
+        }
+        else{
+            
+ userAns.push(obj);
+        }}
+    }
+   
+    alert("Your Answer is saved")
+    }
+    else{
+        alert("Select the option")
+    }
+}
+
+
+</script>
+<script>
+    
+function submit(){
+ if(userAns.length!=questions.length){
+    alert("You haven't saved all answers yet ")
+ }
+ else{
+    let data={
+        "stu_name":document.getElementById("stu_name").value,
+"stu_email":document.getElementById("stu_email").value,
+"answers":userAns,
+"quiz_id":"<%-quiz._id%>"
+
+    }
+    $.ajax({
+        "method":"post",
+        "url":"/admin/save-student-response",
+        "data":data
+    }).done((res)=>{
+        alert("Response Submitted")
+        location.reload()
+    })
+}
+}
+
+function discardTest(){
+    alert("Time is up your test is not submitted you have to attepmt it again")
+    location.reload()
+}
+ 
+</script>
+<%-include("footer.ejs")%>

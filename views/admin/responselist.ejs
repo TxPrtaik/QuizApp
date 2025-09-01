@@ -1,0 +1,33 @@
+<%-include("header.ejs")%>
+<div class="container p-5">
+    <div class="row">
+        <h3>Response List Of <%-quiz.quiz_name%></h3>
+        <div class="col-md-12 rounded shadow p-4">
+            <table class="table table-primary">
+                <tr>
+                    <th>SrNO</th>
+                    <th>Student Name</th>
+                    <th>Student Email</th>
+                    <th>Marks Obtain</th>
+                    <th>Submit Date</th>
+                    <th>Student Response</th>
+                    <th></th>
+                </tr>
+                <%for(let i=0;i<resp.length;i++){%>
+                <tr>
+                    <td><%-i+1%></td>
+                    <td><%-resp[i].stu_name%></td>
+                    <td><%-resp[i].stu_email%></td>
+                    <td><%-resp[i].marks%></td>
+                    <td><%-
+                        new Date(resp[i].date).toString().slice(4,16)
+                        %></td>
+                        <td><a href="/admin/student-resp/<%-resp[i]._id%>" class="btn btn-primary">View Response</a></td>
+                    <td><a class="btn btn-danger" href="/delete-resp/<%-resp[i]._id%>">X</a></td>
+                </tr>
+                <%}%>
+            </table>
+        </div>
+    </div>
+</div>
+<%-include("footer.ejs")%>
